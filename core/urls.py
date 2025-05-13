@@ -1,5 +1,7 @@
 from django.urls import path
 
-from .views import MainPageView
+from .views import TweetBotAPIView
 
-urlpatterns = [path("", MainPageView.as_view(), name="index")]
+urlpatterns = [
+    path("", TweetBotAPIView.as_view(), name="tweet-bot"),
+]
