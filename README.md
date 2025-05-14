@@ -2,6 +2,8 @@
 
 A fully-automated Twitter/X bot.
 
+![Image](https://github.com/user-attachments/assets/a22484fe-38b7-4b0f-a4b4-01795bed4cc6)
+
 ---
 
 ## ✨ Features
