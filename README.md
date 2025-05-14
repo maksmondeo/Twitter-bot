@@ -30,7 +30,7 @@ A fully-automated Twitter/X bot.
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/your-username/twitter-bot.git
+git clone https://github.com/maksmondeo/Twitter-bot.git
 cd twitter-bot
 ```
 
@@ -52,17 +52,6 @@ docker-compose up --build
 
 - React UI will be available at [**http://localhost:3000**](http://localhost:3000)
 - Django backend API runs at [**http://localhost:8000**](http://localhost:8000)
-
----
-
-### 4. Using the App
-
-1. Click the **gear icon** (⚙️) to show/hide the API settings.
-2. Fill in your Twitter API credentials.
-3. Enter the tweet content and optional media file.
-4. Set the interval (e.g. every 30 seconds).
-5. Click **Start Bot** to begin tweeting.
-6. See real-time logs and countdown below.
 
 ---
 
