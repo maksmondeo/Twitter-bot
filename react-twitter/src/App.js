@@ -85,6 +85,34 @@ function App() {
     addLog("🔴 Bot stopped");
   };
 
+  const exportKeys = () => {
+    const keys = {
+      api_key: formData.api_key,
+      api_secret: formData.api_secret,
+      bearer_token: formData.bearer_token,
+      access_token: formData.access_token,
+      access_token_secret: formData.access_token_secret,
+      random_string: formData.random_string,
+    };
+    const blob = new Blob([JSON.stringify(keys, null, 2)], {
+      type: "application/json",
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "twitter_keys.json";
+    a.click();
+  };
+
+  const importKeys = (e) => {
+    const fileReader = new FileReader();
+    fileReader.onload = (event) => {
+      const imported = JSON.parse(event.target.result);
+      setFormData((prev) => ({ ...prev, ...imported }));
+    };
+    fileReader.readAsText(e.target.files[0]);
+  };
+
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center px-4 py-10">
       <div className="bg-white shadow-xl rounded-xl p-6 w-full max-w-3xl">
@@ -101,7 +129,7 @@ function App() {
 
         <div
           className={`grid grid-cols-1 gap-4 overflow-hidden transition-all duration-700 ease-in-out ${
-            showSettings ? "max-h-[500px]" : "max-h-0"
+            showSettings ? "max-h-[530px]" : "max-h-0"
           }`}
         >
           {[
@@ -116,6 +144,7 @@ function App() {
               <input
                 key={key}
                 name={key}
+                value={formData[key] || ""}
                 placeholder={key.replaceAll("_", " ")}
                 onChange={handleChange}
                 className="input"
@@ -123,7 +152,7 @@ function App() {
             </label>
           ))}
 
-          <label className="flex items-center gap-2 mb-8">
+          <label className="flex items-center gap-2">
             <input
               type="checkbox"
               name="random_string"
@@ -132,6 +161,23 @@ function App() {
             />
             <span className="text-sm">Add random string?</span>
           </label>
+          <div className="flex gap-4 mb-8">
+            <button
+              onClick={exportKeys}
+              className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+            >
+              Export Keys
+            </button>
+            <label className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 cursor-pointer">
+              Import Keys
+              <input
+                type="file"
+                accept=".json"
+                onChange={importKeys}
+                className="hidden"
+              />
+            </label>
+          </div>
         </div>
         <div className="flex flex-col space-y-4 mb-8">
           <label>
