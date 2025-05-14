@@ -40,10 +40,10 @@ Create a `.env` file for your Twitter/X credentials with template:
 
 ```bash
 # Linux
-cp .env-template .env
+cp env-template .env
 
 # Windows
-copy .env-template .env
+copy env-template .env
 ```
 
 ---
