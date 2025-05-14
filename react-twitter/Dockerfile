@@ -1,5 +1,5 @@
 # react-twitter/Dockerfile
-FROM node:20
+FROM node:18-alpine
 
 WORKDIR /app
 
@@ -8,6 +8,5 @@ RUN npm install
 
 COPY . .
 
-RUN npm run build
-
+EXPOSE 3000
 CMD ["npm", "start"]

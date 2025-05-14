@@ -19,10 +19,10 @@ services:
     build:
       context: ./react-twitter
       dockerfile: Dockerfile
-    container_name: react-frontend
     volumes:
       - ./react-twitter:/app
+      - /app/node_modules  # Prevent host overwrite of container's node_modules
     ports:
       - "3000:3000"
-    stdin_open: true
-    tty: true
+    environment:
+      - CHOKIDAR_USEPOLLING=true
