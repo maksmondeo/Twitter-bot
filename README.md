@@ -39,7 +39,11 @@ cd twitter-bot
 Create a `.env` file for your Twitter/X credentials with template:
 
 ```bash
+# Linux
 cp .env-template .env
+
+# Windows
+copy .env-template .env
 ```
 
 ---
