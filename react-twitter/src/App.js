@@ -1,5 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
+import { FiSettings } from "react-icons/fi";
+import { PiBirdFill } from "react-icons/pi";
 
 function App() {
   const [formData, setFormData] = useState({
@@ -14,9 +16,21 @@ function App() {
     media: null,
   });
 
+  const [isRunning, setIsRunning] = useState(false);
+  const [logMessages, setLogMessages] = useState([]);
+  const [showSettings, setShowSettings] = useState(false);
+  const [secondsLeft, setSecondsLeft] = useState(0);
+  const intervalRef = useRef(null);
+
+  const addLog = (message) => {
+    setLogMessages((prev) => [
+      ...prev,
+      `[${new Date().toLocaleTimeString()}] ${message}`,
+    ]);
+  };
+
   const handleChange = (e) => {
     const { name, value, type, checked, files } = e.target;
-
     if (type === "file") {
       setFormData({ ...formData, [name]: files[0] });
     } else if (type === "checkbox") {
@@ -26,61 +40,161 @@ function App() {
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const sendTweet = async () => {
     const payload = new FormData();
     for (let key in formData) {
-      if (formData[key] !== null) {
-        payload.append(key, formData[key]);
-      }
+      if (formData[key] !== null) payload.append(key, formData[key]);
     }
 
     try {
-      const response = await axios.post("http://127.0.0.1:8000/api/tweet/", payload, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-      alert("Tweet submitted successfully!");
-      console.log(response.data);
+      await axios.post("http://127.0.0.1:8000/api/tweet/", payload);
+      addLog("✅ Tweet sent successfully");
     } catch (error) {
-      console.error("Tweet submission failed", error);
-      alert("Failed to send tweet");
+      addLog("❌ Failed to send tweet: " + error);
+      stopBot();
     }
   };
 
+  const startBot = () => {
+    if (isRunning) return;
+    setIsRunning(true);
+    addLog("🟢 Bot started");
+    setSecondsLeft(formData.wait_time);
+
+    sendTweet(); // Initial send
+
+    intervalRef.current = setInterval(() => {
+      sendTweet();
+      setSecondsLeft(formData.wait_time);
+    }, formData.wait_time * 1000);
+  };
+
+  useEffect(() => {
+    let countdown;
+    if (isRunning) {
+      countdown = setInterval(() => {
+        setSecondsLeft((s) => (s > 0 ? s - 1 : 0));
+      }, 1000);
+    }
+    return () => clearInterval(countdown);
+  }, [isRunning]);
+
+  const stopBot = () => {
+    clearInterval(intervalRef.current);
+    setIsRunning(false);
+    addLog("🔴 Bot stopped");
+  };
+
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center px-4">
-      <div className="bg-white shadow-lg rounded-xl p-8 w-full max-w-2xl">
-        <h2 className="text-2xl font-bold mb-6 text-center">🐦 Tweet Bot Config</h2>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <input type="text" name="api_key" placeholder="API Key" required className="input" onChange={handleChange} />
-          <input type="text" name="api_secret" placeholder="API Secret" required className="input" onChange={handleChange} />
-          <input type="text" name="bearer_token" placeholder="Bearer Token" required className="input" onChange={handleChange} />
-          <input type="text" name="access_token" placeholder="Access Token" required className="input" onChange={handleChange} />
-          <input type="text" name="access_token_secret" placeholder="Access Token Secret" required className="input" onChange={handleChange} />
-
-          <div className="flex gap-4 items-center">
-            <label className="flex-1">
-              <span className="block text-sm font-medium text-gray-700">Wait Time (sec)</span>
-              <input type="number" name="wait_time" value={formData.wait_time} className="input" onChange={handleChange} />
-            </label>
-
-            <label className="inline-flex items-center mt-6">
-              <input type="checkbox" name="random_string" checked={formData.random_string} onChange={handleChange} className="mr-2" />
-              <span className="text-sm">Add random string?</span>
-            </label>
-          </div>
-
-          <textarea name="content" placeholder="Tweet content..." required rows="4" className="input resize-none" onChange={handleChange} />
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Attach Media (optional)</label>
-            <input type="file" name="media" accept="image/*,video/*" className="mt-1" onChange={handleChange} />
-          </div>
-
-          <button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded transition">
-            ✈️ Send Tweet
+    <div className="min-h-screen bg-gray-100 flex items-center justify-center px-4 py-10">
+      <div className="bg-white shadow-xl rounded-xl p-6 w-full max-w-3xl">
+        <div className="flex items-center justify-between mb-4 ">
+          <PiBirdFill size={24} color="#2b7fff" />
+          <h2 className="text-2xl font-bold"> Tweet Bot</h2>
+          <button
+            onClick={() => setShowSettings(!showSettings)}
+            className="text-gray-600 hover:text-gray-800 transition"
+          >
+            <FiSettings size={24} />
           </button>
-        </form>
+        </div>
+
+        <div
+          className={`grid grid-cols-1 gap-4 overflow-hidden transition-all duration-700 ease-in-out ${
+            showSettings ? "max-h-[500px]" : "max-h-0"
+          }`}
+        >
+          {[
+            "api_key",
+            "api_secret",
+            "bearer_token",
+            "access_token",
+            "access_token_secret",
+          ].map((key) => (
+            <label>
+              <span className="text-sm">{key}</span>
+              <input
+                key={key}
+                name={key}
+                placeholder={key.replaceAll("_", " ")}
+                onChange={handleChange}
+                className="input"
+              />
+            </label>
+          ))}
+
+          <label className="flex items-center gap-2 mb-8">
+            <input
+              type="checkbox"
+              name="random_string"
+              checked={formData.random_string}
+              onChange={handleChange}
+            />
+            <span className="text-sm">Add random string?</span>
+          </label>
+        </div>
+        <div className="flex flex-col space-y-4 mb-8">
+          <label>
+            <span className="text-sm">Tweet text</span>
+            <textarea
+              name="content"
+              placeholder="Write your tweet here..."
+              onChange={handleChange}
+              rows="4"
+              className="input"
+            ></textarea>
+          </label>
+
+          <label>
+            <span className="text-sm">Wait time (in seconds)</span>
+            <input
+              type="number"
+              name="wait_time"
+              value={formData.wait_time}
+              onChange={handleChange}
+              className="input"
+              placeholder="Wait time (in seconds)"
+            />
+          </label>
+
+          <label>
+            <span className="text-sm">Attachement</span>
+            <input
+              type="file"
+              name="media"
+              accept="image/*,video/*"
+              onChange={handleChange}
+              className="input"
+            />
+          </label>
+        </div>
+        <div className="flex justify-between mt-4">
+          <button
+            onClick={startBot}
+            disabled={isRunning}
+            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded"
+          >
+            Start Bot
+          </button>
+          <button
+            onClick={stopBot}
+            disabled={!isRunning}
+            className="bg-red-600 hover:bg-red-700 text-white font-semibold px-4 py-2 rounded"
+          >
+            Stop Bot
+          </button>
+        </div>
+
+        <div className="bg-black rounded">
+          <div className="text-green-400 font-mono text-sm p-4 mt-6 h-48 overflow-y-auto">
+            {logMessages.map((log, index) => (
+              <div key={index}>{log}</div>
+            ))}
+          </div>
+          <div className="border-t-4 border-green-950 text-green-400 font-mono text-sm p-4 ">
+            📟 {isRunning ? `Next in ${secondsLeft}s` : "Idle"}
+          </div>
+        </div>
       </div>
     </div>
   );
