@@ -1,0 +1,28 @@
+version: '3.9'
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: django-backend
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - frontend
+    environment:
+      - DEBUG=1
+
+  frontend:
+    build:
+      context: ./react-twitter
+      dockerfile: Dockerfile
+    container_name: react-frontend
+    volumes:
+      - ./react-twitter:/app
+    ports:
+      - "3000:3000"
+    stdin_open: true
+    tty: true
