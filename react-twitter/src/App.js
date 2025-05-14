@@ -28,7 +28,6 @@ function App() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     const payload = new FormData();
     for (let key in formData) {
       if (formData[key] !== null) {
@@ -49,23 +48,40 @@ function App() {
   };
 
   return (
-    <div style={{ maxWidth: 600, margin: "auto", padding: 20 }}>
-      <h2>Tweet Bot Config</h2>
-      <form onSubmit={handleSubmit}>
-        <input name="api_key" placeholder="API Key" onChange={handleChange} required /><br />
-        <input name="api_secret" placeholder="API Secret" onChange={handleChange} required /><br />
-        <input name="bearer_token" placeholder="Bearer Token" onChange={handleChange} required /><br />
-        <input name="access_token" placeholder="Access Token" onChange={handleChange} required /><br />
-        <input name="access_token_secret" placeholder="Access Token Secret" onChange={handleChange} required /><br />
-        <input name="wait_time" type="number" placeholder="Wait Time (sec)" onChange={handleChange} value={formData.wait_time} /><br />
-        <label>
-          Add Random String?
-          <input name="random_string" type="checkbox" checked={formData.random_string} onChange={handleChange} />
-        </label><br />
-        <textarea name="content" placeholder="Tweet content..." onChange={handleChange} required /><br />
-        <input name="media" type="file" accept="image/*,video/*" onChange={handleChange} /><br /><br />
-        <button type="submit">Send Tweet</button>
-      </form>
+    <div className="min-h-screen bg-gray-100 flex items-center justify-center px-4">
+      <div className="bg-white shadow-lg rounded-xl p-8 w-full max-w-2xl">
+        <h2 className="text-2xl font-bold mb-6 text-center">🐦 Tweet Bot Config</h2>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <input type="text" name="api_key" placeholder="API Key" required className="input" onChange={handleChange} />
+          <input type="text" name="api_secret" placeholder="API Secret" required className="input" onChange={handleChange} />
+          <input type="text" name="bearer_token" placeholder="Bearer Token" required className="input" onChange={handleChange} />
+          <input type="text" name="access_token" placeholder="Access Token" required className="input" onChange={handleChange} />
+          <input type="text" name="access_token_secret" placeholder="Access Token Secret" required className="input" onChange={handleChange} />
+
+          <div className="flex gap-4 items-center">
+            <label className="flex-1">
+              <span className="block text-sm font-medium text-gray-700">Wait Time (sec)</span>
+              <input type="number" name="wait_time" value={formData.wait_time} className="input" onChange={handleChange} />
+            </label>
+
+            <label className="inline-flex items-center mt-6">
+              <input type="checkbox" name="random_string" checked={formData.random_string} onChange={handleChange} className="mr-2" />
+              <span className="text-sm">Add random string?</span>
+            </label>
+          </div>
+
+          <textarea name="content" placeholder="Tweet content..." required rows="4" className="input resize-none" onChange={handleChange} />
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Attach Media (optional)</label>
+            <input type="file" name="media" accept="image/*,video/*" className="mt-1" onChange={handleChange} />
+          </div>
+
+          <button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded transition">
+            ✈️ Send Tweet
+          </button>
+        </form>
+      </div>
     </div>
   );
 }
