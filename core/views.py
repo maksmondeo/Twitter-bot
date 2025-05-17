@@ -72,6 +72,9 @@ class TweetBotAPIView(APIView):
                 return Response({"error": f"Twitter API error: {e!s}"}, status=status.HTTP_400_BAD_REQUEST)
             except FileNotFoundError as e:
                 return Response({"error": f"Media file not found: {e!s}"}, status=status.HTTP_400_BAD_REQUEST)
+            finally:
+                if media_path:
+                    default_storage.delete(media_path)
 
             time.sleep(wait_time)
             return None
